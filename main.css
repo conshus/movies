@@ -4,6 +4,12 @@ html, body {
   margin: 0;
   font-size: 1.5vw;
 }
+h3 {
+  margin-bottom: 0;
+}
+span{
+  padding:.5rem;
+}
 .flex {
   display: flex;
 }
@@ -22,9 +28,10 @@ html, body {
  }
  .space_around{
    justify-content: space-around;
+   flex-wrap: wrap;
  }
 #poster {
-  width:60vmin;
+  width:45vmin;
 }
 #movieInfoHolder {
   position: relative;
@@ -57,9 +64,20 @@ input, button {
 }
 #overview {
   font-size: 2vw;
+  margin-bottom: 3vw;
 }
 #title {
   font-size: 5vw;
 }
-#genres {
+#genreSelect {
+  font-size: 5vw;
+}
+.genreButton{
+  font-size: 2vw;
+}
+#credits{
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: 1vw;
 }

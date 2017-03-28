@@ -1,14 +1,34 @@
+function getTopGenre(event){
+  let genrePressed = event.target.dataset.genreId;
+  console.log(event);
+  console.log(genrePressed);
+  fetch("https://api.themoviedb.org/3/discover/movie?api_key="+api_key+"&with_genres="+genrePressed+"&language=en-US&sort_by=popularity.desc")
+  .then(movieInfo => movieInfo.json())
+  .then(displayMovieInfo);
+}
 function getGenreList (response){
   console.log(response.genres.length);
   console.log(response.genres);
   for (i=0; i<response.genres.length; i++){
     genreList[i]={id:response.genres[i].id, name:response.genres[i].name};
     genreListIds[i]=response.genres[i].id;
+    let newSPAN = document.createElement("BUTTON");
+    newSPAN.textContent = response.genres[i].name;
+    newSPAN.dataset.genreId = response.genres[i].id;
+    newSPAN.className = "genreButton";
+    genreSection.appendChild(newSPAN);
   }
-  console.log(genreList)
-  console.log(genreListIds)
+  let buttons = document.querySelectorAll(".genreButton");
+  for (i=0; i<buttons.length; i++){
+    let button = buttons[i];
+    button.addEventListener("click", getTopGenre);
+  }
 }
 function displayMovieInfo(response){
+  //Remove previous genre listings.
+  while (genres.hasChildNodes()){
+    genres.removeChild(genres.firstChild);
+  }
   console.log(response);
   console.log(response.results[0].genre_ids);
   movieBackground.style.backgroundImage = "url("+baseImageUrl+response.results[0].poster_path+")";
@@ -18,10 +38,8 @@ function displayMovieInfo(response){
   releaseDate.textContent = response.results[0].release_date;
   for (i=0; i < response.results[0].genre_ids.length; i++){
     let newSPAN = document.createElement("SPAN");
-    newSPAN.textContent = "|"+genreList[genreListIds.indexOf(response.results[0].genre_ids[i])].name;
+    newSPAN.textContent = "√"+genreList[genreListIds.indexOf(response.results[0].genre_ids[i])].name;
     genres.appendChild(newSPAN);
-    console.log(genreList[genreListIds.indexOf(response.results[0].genre_ids[i])].name);
-    console.log(response.results[0].genre_ids[i]);
   }
 }
 function getMovieInfo(){
@@ -31,9 +49,6 @@ function getMovieInfo(){
   } else {
     movieTitle=movieSearch.value;
   }
-  console.log(movieSearch.value);
-  console.log(movieTitle);
-
   fetch("https://api.themoviedb.org/3/search/movie?api_key="+api_key+"&query="+movieTitle)
   .then(movieInfo => movieInfo.json())
   .then(displayMovieInfo);
@@ -45,6 +60,7 @@ let title = document.querySelector("#title");
 let overview = document.querySelector("#overview");
 let releaseDate = document.querySelector("#releaseDate");
 let genres = document.querySelector("#genres");
+let genreSection = document.querySelector("#genreSection");
 let genreList = [];
 let genreListIds = [];
 let movieTitle = "harlem nights";
