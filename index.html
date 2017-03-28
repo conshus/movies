@@ -4,15 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
   <link rel="stylesheet" href="main.css" />
   <title>Not IMDb</title>
 </head>
 <body>
-  <div><img src="" id="poster"></div>
-  <div id="title"></div>
-  <div id="overview"></div>
-  <div id="releaseDate"></div>
-  <div><ul id="genres"></ul></div>
+  <div class="flex hcenter">
+    <input name="movieSearch" id="movieSearch" placeholder="Enter Movie Title"> <button id="startSearch">Search</button>
+  </div>
+  <div class="flex">
+    <div><img src="" id="poster"></div>
+    <div id="movieInfoHolder">
+      <div id="movieBackground"></div>
+      <div id="movieInfo" class="flex flexcolumn vcenter hcenter">
+        <div id="title"></div>
+        <div id="overview"></div>
+        <div class="flex vcenter space_between">
+          <div><strong>Release Date:</strong> <span id="releaseDate"></span></div>
+          <div><stong>Genres:</strong><span id="genres" class="flex space_around"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
   <script type="text/javascript" src="api_key.js" charset="utf-8"></script>
   <script type="text/javascript" src="index.js" charset="utf-8"></script>
 </body>

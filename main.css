@@ -1,0 +1,65 @@
+html, body {
+  font-family: 'Roboto', sans-serif;
+  padding: 0;
+  margin: 0;
+  font-size: 1.5vw;
+}
+.flex {
+  display: flex;
+}
+.flexcolumn{
+  flex-direction: column;
+}
+.vcenter {
+  align-items: center;
+}
+ .hcenter {
+   justify-content: center;
+ }
+ .space_between{
+   justify-content: space-between;
+   width:100%
+ }
+ .space_around{
+   justify-content: space-around;
+ }
+#poster {
+  width:60vmin;
+}
+#movieInfoHolder {
+  position: relative;
+  width: 100%;
+}
+#movieBackground {
+  position:relative;
+  width:100%;
+  height:100%;
+  background-image: url("");
+  opacity: 0.3;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  color: black;
+  -webkit-filter: blur(5px);
+  -moz-filter: blur(5px);
+  -o-filter: blur(5px);
+  -ms-filter: blur(5px);
+  filter: blur(5px);
+}
+#movieInfo {
+  position: absolute;
+  top:0;
+  padding: 3vw;
+  height:75%;
+}
+input, button {
+  font-size:5vw;
+}
+#overview {
+  font-size: 2vw;
+}
+#title {
+  font-size: 5vw;
+}
+#genres {
+}
