@@ -122,19 +122,24 @@ getTopGenreInfo("35")
 //.then(object => object.results.map(getMovieInfo))
 
 //5. how many movies have the stars of the most popular movie of last year appeared in? (list each star's name with the number of movies)
+let top5cast = [];
 function getActorCredits (actorObject){
   console.log(actorObject.name)
   return getInfo("person/"+actorObject.id+"/movie_credits")
 }
 
 function getTop5ActorsMovies (actorObject){
+  console.log(top5cast);
   let top5ActorsMovies = actorObject.map(object => [object.cast.length])
-  console.log(top5ActorsMovies);
+  for (i=0; i < top5ActorsMovies.length; i++){
+    console.log (top5cast[i].name , top5ActorsMovies[i]);
+  }
+  //console.log(top5cast, top5ActorsMovies);
 }
 getInfo("discover/movie","primary_release_year=2016")
 .then(object => getInfo("movie/"+object.results[0].id+"/credits"))
 .then(object => {
-  let top5cast = object.cast.slice(0,5)
+  top5cast = object.cast.slice(0,5)
   return top5cast.map(getActorCredits)
 })
 .then(moviePromises => Promise.all(moviePromises))
