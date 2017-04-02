@@ -12,6 +12,7 @@ let movieTitle = "harlem nights";
 let startSearch = document.querySelector("#startSearch");
 let movieSearch = document.querySelector("#movieSearch");
 startSearch.addEventListener("click", registerClick);
+
 //Get Genre List
 fetch("https://api.themoviedb.org/3/genre/movie/list?api_key="+api_key+"&language=en-US")
 .then(genreList => genreList.json())
@@ -89,7 +90,7 @@ function getTopGenreInfo(genreId){
 //1. What is the total budget of the ten most popular movies in the db?
 function calculateTotalBudget(movieObject){
   let totalBudget = movieObject.reduce((total, movieObject) => total + movieObject.budget, 0);
-  console.log("1. What is the total budget of the ten most popular movies in the db?", totalBudget);
+  console.log("1. What is the total budget of the ten most popular movies in the db? $"+ totalBudget);
 }
 getInfo("movie/popular")
 .then(object => {
@@ -97,10 +98,45 @@ getInfo("movie/popular")
   return top10.map(getMovieInfo);
 })
 .then(moviePromises => Promise.all(moviePromises))
-//.then(object => console.log(object))
 .then(calculateTotalBudget)
 
 //2. Which genre has the highest average popularity for its top 20 movies?
+let genreCompleteList=[];
+let totalPopArray =[];
+let averagePopArray=[];
+let genrePopAverage =[];
+function getGenreTop20 (object){
+  //console.log(object)
+  genreCompleteList[genreCompleteList.length] = {genre: object.name, id: object.id}
+  return fetch("https://api.themoviedb.org/3/discover/movie?api_key="+api_key+"&with_genres="+object.id+"&language=en-US&sort_by=popularity.desc")
+  .then(movieInfo => movieInfo.json())
+}
+function getPopularityTotals (object){
+  //console.log("popularity")
+  return totalPopArray[totalPopArray.length] = object.results.map(object => object.popularity).reduce((total, popularity)=> total + popularity)
+
+}
+function getPopularityAverages(object){
+  averagePopArray[averagePopArray.length] = object/totalPopArray.length;
+  combineAvgPopArrays();
+}
+function combineAvgPopArrays(){
+  genrePopAverage.push({id: genreCompleteList[genrePopAverage.length].id, genre: genreCompleteList[genrePopAverage.length].genre, avgPop: averagePopArray[genrePopAverage.length]})
+  sortAvgArray();
+}
+function sortAvgArray(){
+  genrePopAverage.sort(function(a,b){
+    return b.avgPop - a.avgPop;
+  })
+  console.log("2. Which genre has the highest average popularity for its top 20 movies? "+genrePopAverage[0].genre+" with an average Popularity of "+genrePopAverage[0].avgPop)
+}
+getInfo("genre/movie/list")
+.then(object => object.genres.map(getGenreTop20))
+.then(moviePromises => Promise.all(moviePromises))
+.then(object => object.map(getPopularityTotals))
+.then(object => object.map(getPopularityAverages))
+.then(object => object.map(combineArrays))
+.then(getPopularityAverages)
 
 //3. Which of the top 20 horror movies have no spoken language besides English?
 function filterSpokenLanguage(movieObject){
@@ -114,32 +150,77 @@ getTopGenreInfo("27")
 .then(object => object.results.map(getMovieInfo))
 .then(moviePromises => Promise.all(moviePromises))
 .then(filterSpokenLanguage);
+
 //4. Who had the most starring roles in the top 20 comedies?
+let combinedArrays = [];
+let actorsCounted = [];
+function getMovieCredits(movieObject) {
+  return getInfo("movie/"+movieObject.id+"/credits");
+}
+function getTop5Cast(movieObject){
+  return movieObject.cast.slice(0,5).map(object => object.name)
+}
+function combineArrays(arraysToBeCombined){
+  //console.log("Arrays to be combined:", arraysToBeCombined);
+  for (i=0;i<arraysToBeCombined.length;i++){
+    //console.log("individual names: ",arraysToBeCombined[i])
+    //combinedArrays.concat(arraysToBeCombined[i]);
+    combinedArrays[combinedArrays.length]=arraysToBeCombined[i];
+  }
+  return combinedArrays;
+}
+
+function countActors(totalActorsArray){
+  let currentActor;
+  let counter = 0;
+  for (i=0; i<totalActorsArray.length; i++){
+    if (totalActorsArray[i] != currentActor){
+      if (counter > 0){
+        //console.log(currentActor+" "+counter+" times")
+        actorsCounted[actorsCounted.length]={name: currentActor, count: counter}
+      }
+      currentActor = totalActorsArray[i];
+      counter = 1;
+    } else {
+      counter++;
+    }
+  }
+  actorsCounted.sort(function(a,b){
+    return b.count - a.count;
+  })
+  return actorsCounted.filter(object => object.count == actorsCounted[0].count).map(object => object.name +" - "+ object.count + " movies")
+
+}
 getTopGenreInfo("35")
-.then(object => object.results.map(getMovieInfo))
-//.then(moviePromises => Promise.all(moviePromises))
-//.then(object => console.log(object))
-//.then(object => object.results.map(getMovieInfo))
+.then(object => object.results.map(getMovieCredits))
+.then(moviePromises => Promise.all(moviePromises))
+.then(object => object.map(getTop5Cast))
+.then(object => object.map(combineArrays))
+//.then(object => object[0].map(countActors))
+.then(object => countActors(object[0].sort()))
+//.then(object => console.log("4. Who had the most starring roles in the top 20 comedies? "+object[0].name+" with "+object[0].count+" movies"))
+//Just in case their are multiple people with the sam
+.then(object => console.log("4. Who had the most starring roles in the top 20 comedies? ",object));
+
 
 //5. how many movies have the stars of the most popular movie of last year appeared in? (list each star's name with the number of movies)
-let top5cast = [];
+let top5Cast = [];
 function getActorCredits (actorObject){
-  console.log(actorObject.name)
+  //console.log(actorObject.name)
   return getInfo("person/"+actorObject.id+"/movie_credits")
 }
-
 function getTop5ActorsMovies (actorObject){
   console.log("5. how many movies have the stars of the most popular movie of last year appeared in? (list each star's name with the number of movies)");
-  let top5ActorsMovies = actorObject.map(object => [object.cast.length])
+  let top5ActorsMovies = actorObject.map(object => object.cast.length)
   for (i=0; i < top5ActorsMovies.length; i++){
-    console.log (top5cast[i].name , top5ActorsMovies[i]);
+    console.log (top5Cast[i].name +" with "+ top5ActorsMovies[i] +" movies.");
   }
 }
-getInfo("discover/movie","primary_release_year=2016")
+getInfo("discover/movie","primary_release_year=2016&sort_by=popularity.desc")
 .then(object => getInfo("movie/"+object.results[0].id+"/credits"))
 .then(object => {
-  top5cast = object.cast.slice(0,5)
-  return top5cast.map(getActorCredits)
+  top5Cast = object.cast.slice(0,5)
+  return top5Cast.map(getActorCredits)
 })
 .then(moviePromises => Promise.all(moviePromises))
 .then(getTop5ActorsMovies);
